@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,7 @@ import java.util.List;
  * los muestra mediante la actividad ItemDetalActivity.
  * En una tablet muestra la lista y los detalles utilizando dos paneles verticales.
  */
-public class ItemListActivity extends AppCompatActivity {
+public class BookListActivity extends AppCompatActivity {
 
     /**
      * Controla número de paneles a mostrar
@@ -73,7 +72,7 @@ public class ItemListActivity extends AppCompatActivity {
     // Este es el adaptador que rellena la lia a partir de nuestra lista de libros
     public static class SimpleItemRecyclerViewAdapter
         extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
-        private final ItemListActivity mParentActivity;
+        private final BookListActivity mParentActivity;
         private final List<BookItem> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
@@ -86,8 +85,8 @@ public class ItemListActivity extends AppCompatActivity {
                 if (mTwoPane) {
                     //Caso para tablet, que actualiza el panel de Detail
                     Bundle arguments = new Bundle();
-                    arguments.putInt(ItemDetailFragment.ARG_ITEM_ID, item.getIdentificador());
-                    ItemDetailFragment fragment = new ItemDetailFragment();
+                    arguments.putInt(BookDetailFragment.ARG_ITEM_ID, item.getIdentificador());
+                    BookDetailFragment fragment = new BookDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
                             .replace(R.id.item_detail_container, fragment)
@@ -95,14 +94,14 @@ public class ItemListActivity extends AppCompatActivity {
                 } else {
                     //Caso para móvil, que llama a la nueva actividad de Detail
                     Context context = view.getContext();
-                    Intent intent = new Intent(context, ItemDetailActivity.class);
-                    intent.putExtra(ItemDetailFragment.ARG_ITEM_ID, item.getIdentificador());
+                    Intent intent = new Intent(context, BookDetailActivity.class);
+                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.getIdentificador());
                     context.startActivity(intent);
                 }
             }
         };
 
-        SimpleItemRecyclerViewAdapter(ItemListActivity parent,
+        SimpleItemRecyclerViewAdapter(BookListActivity parent,
                                       List<BookItem> items,
                                       boolean twoPane) {
             //Constructor del adaptador
@@ -113,15 +112,31 @@ public class ItemListActivity extends AppCompatActivity {
 
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_list_content, parent, false);
+            View view;
+            //Dependiendo del valor del parámetro viewType utilizamos un layout diferente
+            //esto determina que podamos usar diferentes layouts para pares o impares
+            if (viewType == 0) {
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.bok_list_content, parent, false);
+            } else {
+                view = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.bok_list_content_pares, parent, false);
+            }
             return new ViewHolder(view);
         }
 
         @Override
+        public int getItemViewType(int position){
+            //Cómo queremos un layout distinto para pares e impares, aquí utilizamos
+            //position que nos indica la posición del elemento de la lista para
+            //gestionar el viewType de la función onCreateViewHolder
+            return position % 2;
+        }
+
+        @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.mIdView.setText(""+mValues.get(position).getIdentificador());
-            holder.mContentView.setText(mValues.get(position).getTitulo());
+            holder.titulolista.setText(mValues.get(position).getTitulo());
+            holder.autorlista.setText(mValues.get(position).getAutor());
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
@@ -133,13 +148,13 @@ public class ItemListActivity extends AppCompatActivity {
         }
 
         class ViewHolder extends RecyclerView.ViewHolder {
-            final TextView mIdView;
-            final TextView mContentView;
+            final TextView titulolista;
+            final TextView autorlista;
 
             ViewHolder(View view) {
                 super(view);
-                mIdView = (TextView) view.findViewById(R.id.id_text);
-                mContentView = (TextView) view.findViewById(R.id.content);
+                titulolista = (TextView) view.findViewById(R.id.id_titulo);
+                autorlista = (TextView) view.findViewById(R.id.autor);
             }
         }
     }

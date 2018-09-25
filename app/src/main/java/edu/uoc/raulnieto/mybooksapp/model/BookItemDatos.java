@@ -20,7 +20,7 @@ public class BookItemDatos {
      */
     public static final Map<Integer, BookItem> ITEM_MAP = new HashMap<Integer, BookItem>();
 
-    private static final int COUNT = 10;
+    private static final int COUNT = 20;
 
     static {
         // Añadimos los elementos en la lista
@@ -37,6 +37,6 @@ public class BookItemDatos {
 
     private static BookItem createBookItem(int position) {
         //Método que crea el libro a añadir con todos los datos.
-        return new BookItem(position,"Title"+position,"Author"+position, null,"Descripción"+position,"URL"+position);
+        return new BookItem(position,"Title"+position,"Author"+position, new Date(),"Descripción"+position,"URL"+position);
     }
 }

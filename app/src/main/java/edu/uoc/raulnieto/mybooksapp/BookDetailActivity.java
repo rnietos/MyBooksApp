@@ -14,7 +14,7 @@ import android.view.MenuItem;
 /**
  * Actividad para los móviles en los que se muestra la lista de los elementos
  */
-public class ItemDetailActivity extends AppCompatActivity {
+public class BookDetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,9 +44,9 @@ public class ItemDetailActivity extends AppCompatActivity {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
             Bundle arguments = new Bundle();
-            arguments.putInt(ItemDetailFragment.ARG_ITEM_ID,
-                    getIntent().getIntExtra(ItemDetailFragment.ARG_ITEM_ID,0));
-            ItemDetailFragment fragment = new ItemDetailFragment();
+            arguments.putInt(BookDetailFragment.ARG_ITEM_ID,
+                    getIntent().getIntExtra(BookDetailFragment.ARG_ITEM_ID,0));
+            BookDetailFragment fragment = new BookDetailFragment();
             fragment.setArguments(arguments);
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.item_detail_container, fragment)
@@ -60,7 +60,7 @@ public class ItemDetailActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == android.R.id.home) {
 
-            NavUtils.navigateUpTo(this, new Intent(this, ItemListActivity.class));
+            NavUtils.navigateUpTo(this, new Intent(this, BookListActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

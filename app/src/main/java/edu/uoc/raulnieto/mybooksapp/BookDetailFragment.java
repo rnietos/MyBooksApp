@@ -4,13 +4,13 @@ import android.app.Activity;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import edu.uoc.raulnieto.mybooksapp.dummy.DummyContent;
+import java.text.SimpleDateFormat;
+
 import edu.uoc.raulnieto.mybooksapp.model.BookItem;
 import edu.uoc.raulnieto.mybooksapp.model.BookItemDatos;
 
@@ -19,7 +19,7 @@ import edu.uoc.raulnieto.mybooksapp.model.BookItemDatos;
  * Se utiliza de forma indistinta cuando se utiliza en una tablet (ItemListActivity)
  * o en un móvil {ItemDetailActivity}
   */
-public class ItemDetailFragment extends Fragment {
+public class BookDetailFragment extends Fragment {
     /**
      * item_id es el nombre del parámetro que contendrá el identificador
      * del libro que queramos mostar, se guarda cómo parámetro para
@@ -35,7 +35,7 @@ public class ItemDetailFragment extends Fragment {
     /**
      * Constructor de la clase
      */
-    public ItemDetailFragment() {
+    public BookDetailFragment() {
     }
 
     @Override
@@ -56,11 +56,14 @@ public class ItemDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.item_detail, container, false);
+        View rootView = inflater.inflate(R.layout.book_item_detail, container, false);
 
         // Si hay un libro lo mostramos la etiqueta.
         if (mItem != null) {
-            ((TextView) rootView.findViewById(R.id.item_detail)).setText(mItem.getAutor());
+            ((TextView) rootView.findViewById(R.id.libro_autor_detail)).setText(mItem.getAutor());
+            SimpleDateFormat fechaString= new SimpleDateFormat("dd MMM yyyy");
+            ((TextView) rootView.findViewById(R.id.libro_fecha_detail)).setText(fechaString.format(mItem.getDataPublicacion()));
+            ((TextView) rootView.findViewById(R.id.libro_descripcion_detail)).setText(mItem.getDescripcion());
         }
 
         return rootView;
