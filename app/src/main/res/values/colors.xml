@@ -3,5 +3,6 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="fondoLiistaLibros">#dadcd1</color>
+    <color name="fondoListaLibrospar">#ffffff</color>
+    <color name="fondoListaLibrosimpar">#c3c9ef</color>
 </resources>

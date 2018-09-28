@@ -115,12 +115,12 @@ public class BookListActivity extends AppCompatActivity {
             View view;
             //Dependiendo del valor del parámetro viewType utilizamos un layout diferente
             //esto determina que podamos usar diferentes layouts para pares o impares
-            if (viewType == 0) {
+            if (viewType == 1) {
                 view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.bok_list_content, parent, false);
+                        .inflate(R.layout.book_list_content, parent, false);
             } else {
                 view = LayoutInflater.from(parent.getContext())
-                        .inflate(R.layout.bok_list_content_pares, parent, false);
+                        .inflate(R.layout.book_list_content_pares, parent, false);
             }
             return new ViewHolder(view);
         }
