@@ -95,7 +95,7 @@ public class BookListActivity extends AppCompatActivity {
                                 @Override
                                 public void onCancelled(DatabaseError error) {
                                     // Failed to read value
-                                    Log.i("TAG", "Failed to read value.", error.toException());
+                                    Log.i("TAG", "Error de lectura.", error.toException());
                                 }
                             });
 
@@ -119,31 +119,6 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
-
-        FirebaseApp.initializeApp(BookListActivity.this);
-        //Inicializamos las clase necesarias para conectar a FireBAse
-        mAuth = FirebaseAuth.getInstance();
-        database = FirebaseDatabase.getInstance();
-
-        mAuth.signInWithEmailAndPassword("rnieto@uoc.edu", "Pa$$w0rd")
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        String mensaje;
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            mensaje="Identificado";
-                            //FirebaseUser user = mAuth.getCurrentUser();
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            mensaje="signInWithEmail:ERROR " + task.getException();
-                        }
-                        Toast.makeText(getApplicationContext(), mensaje,
-                                Toast.LENGTH_LONG).show();
-
-                        // ...
-                    }
-                });
 
 
         if (findViewById(R.id.item_detail_container) != null) {
