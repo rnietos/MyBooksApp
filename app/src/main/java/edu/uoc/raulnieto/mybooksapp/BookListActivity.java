@@ -9,14 +9,34 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 
 import edu.uoc.raulnieto.mybooksapp.model.BookItem;
 import edu.uoc.raulnieto.mybooksapp.model.BookItemDatos;
+import edu.uoc.raulnieto.mybooksapp.model.Libro;
+import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
 
+
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,11 +53,64 @@ public class BookListActivity extends AppCompatActivity {
      * Controla número de paneles a mostrar
      */
     private boolean mTwoPane;
+    //Variables relacionadas con FireBase
+    private FirebaseAuth mAuth;
+    private FirebaseDatabase database;
+    private FirebaseUser user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
+
+        //Nuevas característivas de Firebase en el proyecto
+        FirebaseApp.initializeApp(BookListActivity.this);
+
+        FirebaseDatabase basededatos;
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signInWithEmailAndPassword("rnieto@uoc.edu", "Pa$$w0rd")
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        Log.i("TAG", "Completada autenticación");
+                        if (task.isSuccessful()) {
+                            user = mAuth.getCurrentUser();
+                            database = FirebaseDatabase.getInstance();
+                            Log.i("TAG", "Identificado");
+                            DatabaseReference myRef = database.getReference().child("books");
+                            // Read from the database
+                            myRef.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    GenericTypeIndicator<ArrayList<Libro>> genericTypeIndicator =new GenericTypeIndicator<ArrayList<Libro>>(){};
+                                    LibroDatos.listalibros=dataSnapshot.getValue(genericTypeIndicator);
+                                    for (int i=0;i<LibroDatos.listalibros.size();i++) {
+                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getTitle());
+                                    }
+                                    /*View recyclerView = findViewById(R.id.item_list);
+                                    assert recyclerView != null;
+                                    setupRecyclerView((RecyclerView) recyclerView);*/
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError error) {
+                                    // Failed to read value
+                                    Log.i("TAG", "Failed to read value.", error.toException());
+                                }
+                            });
+
+                        } else {
+                            Log.i("TAG", "Error conexion firebase");
+                        }
+                    }
+                });
+
+
+
+
+
+
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -51,6 +124,33 @@ public class BookListActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+
+        FirebaseApp.initializeApp(BookListActivity.this);
+        //Inicializamos las clase necesarias para conectar a FireBAse
+        mAuth = FirebaseAuth.getInstance();
+        database = FirebaseDatabase.getInstance();
+
+        mAuth.signInWithEmailAndPassword("rnieto@uoc.edu", "Pa$$w0rd")
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        String mensaje;
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            mensaje="Identificado";
+                            //FirebaseUser user = mAuth.getCurrentUser();
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            mensaje="signInWithEmail:ERROR " + task.getException();
+                        }
+                        Toast.makeText(getApplicationContext(), mensaje,
+                                Toast.LENGTH_LONG).show();
+
+                        // ...
+                    }
+                });
+
 
         if (findViewById(R.id.item_detail_container) != null) {
             // Cuando es una tablet (res/values-w900dp).

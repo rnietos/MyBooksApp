@@ -1,0 +1,73 @@
+{
+  "project_info": {
+    "project_number": "573194235667",
+    "firebase_url": "https://mybooksrnieto.firebaseio.com",
+    "project_id": "mybooksrnieto",
+    "storage_bucket": "mybooksrnieto.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573194235667:android:2b1067e445f169b1",
+        "android_client_info": {
+          "package_name": "edu.uoc.raulnieto.mybooksapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573194235667-3lkk4ts7hvl0i0p3ohs5ph0bmnn35m6j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPS4tmWrjFjT8O_ScY5Z_eeivU4jhz1Vs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:573194235667:android:352fe0fbc5632125",
+        "android_client_info": {
+          "package_name": "edu.uoc.raulnieto.pruebaparimpar"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "573194235667-3lkk4ts7hvl0i0p3ohs5ph0bmnn35m6j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPS4tmWrjFjT8O_ScY5Z_eeivU4jhz1Vs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
