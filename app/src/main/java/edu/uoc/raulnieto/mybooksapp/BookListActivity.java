@@ -86,6 +86,9 @@ public class BookListActivity extends AppCompatActivity {
                                     LibroDatos.listalibros=dataSnapshot.getValue(genericTypeIndicator);
                                     for (int i=0;i<LibroDatos.listalibros.size();i++) {
                                         Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getTitle());
+                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getAuthor());
+                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getPublication_date());
+                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getId());
                                     }
                                     /*View recyclerView = findViewById(R.id.item_list);
                                     assert recyclerView != null;

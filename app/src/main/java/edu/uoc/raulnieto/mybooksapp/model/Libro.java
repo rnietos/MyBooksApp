@@ -1,5 +1,7 @@
 package edu.uoc.raulnieto.mybooksapp.model;
 
+import android.util.Log;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,7 +48,7 @@ public class Libro {
         return publication_date;
     }
     public void setpublication_date(String dataPublicacion) {
-        SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd/MM/yyyy");
         try {
             publication_date = formatoDelTexto.parse(dataPublicacion);
         } catch (ParseException e) {
