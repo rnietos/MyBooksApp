@@ -106,12 +106,6 @@ public class BookListActivity extends AppCompatActivity {
                 });
 
 
-
-
-
-
-
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
