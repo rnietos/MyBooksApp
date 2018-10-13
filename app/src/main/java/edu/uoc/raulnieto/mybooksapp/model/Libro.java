@@ -10,9 +10,9 @@ public class Libro {
     private int id;
     private String title;
     private String author;
-    private Date publication_date;
+    private Date publicationdate;
     private String description;
-    private String url_image;
+    private String urlimage;
 
     Libro(){}
     //Constructor de la clase con todos los parámetros.
@@ -20,9 +20,9 @@ public class Libro {
         id = identificador;
         title = titulo;
         author = autor;
-        setpublication_date(dataPublicacion);
+        setpublicationdate(dataPublicacion);
         description = descripcion;
-        url_image = URL;
+        urlimage = URL;
     }
 
     //Get y sets de las propiedades.
@@ -44,16 +44,18 @@ public class Libro {
     public void setAuthor(String autor) {
         author = autor;
     }
-    public Date getPublication_date() {
-        return publication_date;
+    public Date getPublicationdate() {
+        return publicationdate;
     }
-    public void setpublication_date(String dataPublicacion) {
+    public void setpublicationdate(String dataPublicacion) {
         SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd/MM/yyyy");
         try {
-            publication_date = formatoDelTexto.parse(dataPublicacion);
+            publicationdate = formatoDelTexto.parse(dataPublicacion);
+            Log.d("TAG","--"+publicationdate);
         } catch (ParseException e) {
-            publication_date = null;
+            publicationdate = null;
             e.printStackTrace();
+            Log.d("TAG","ERROR: "+publicationdate);
         }
     }
     public String getDescription() {
@@ -63,9 +65,9 @@ public class Libro {
         description = descripcion;
     }
     public String getURL() {
-        return url_image;
+        return urlimage;
     }
     public void setURL(String URL) {
-        url_image = URL;
+        urlimage = URL;
     }
 }

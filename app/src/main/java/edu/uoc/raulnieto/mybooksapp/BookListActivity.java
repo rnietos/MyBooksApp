@@ -14,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -29,8 +28,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
-import edu.uoc.raulnieto.mybooksapp.model.BookItem;
-import edu.uoc.raulnieto.mybooksapp.model.BookItemDatos;
 import edu.uoc.raulnieto.mybooksapp.model.Libro;
 import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
 
@@ -87,12 +84,13 @@ public class BookListActivity extends AppCompatActivity {
                                     for (int i=0;i<LibroDatos.listalibros.size();i++) {
                                         Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getTitle());
                                         Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getAuthor());
-                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getPublication_date());
+                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getPublicationdate());
                                         Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getId());
+                                        LibroDatos.listalibros.get(i).setId(i);
                                     }
-                                    /*View recyclerView = findViewById(R.id.item_list);
+                                    View recyclerView = findViewById(R.id.item_list);
                                     assert recyclerView != null;
-                                    setupRecyclerView((RecyclerView) recyclerView);*/
+                                    setupRecyclerView((RecyclerView) recyclerView);
                                 }
 
                                 @Override
@@ -130,34 +128,34 @@ public class BookListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
-        View recyclerView = findViewById(R.id.item_list);
+       /* View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);
+        setupRecyclerView((RecyclerView) recyclerView);*/
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         //Preparamos los datos a mostrar indicando de donde se obtienen los datos
         // y el número de paneles
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, BookItemDatos.ITEMS, mTwoPane));
+        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, LibroDatos.listalibros, mTwoPane));
     }
 
     // Este es el adaptador que rellena la lia a partir de nuestra lista de libros
     public static class SimpleItemRecyclerViewAdapter
         extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
         private final BookListActivity mParentActivity;
-        private final List<BookItem> mValues;
+        private final List<Libro> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //Control cuando seleccionan un libro
-                BookItem item = (BookItem) view.getTag();
+                Libro item = (Libro) view.getTag();
                 //Independientemente de los paneles guardamos
                 // el parámetro (constante ARG_ITEM_ID) con el identificador Libro que se haya seleccionado
                 if (mTwoPane) {
                     //Caso para tablet, que actualiza el panel de Detail
                     Bundle arguments = new Bundle();
-                    arguments.putInt(BookDetailFragment.ARG_ITEM_ID, item.getIdentificador());
+                    arguments.putInt(BookDetailFragment.ARG_ITEM_ID, item.getId());
                     BookDetailFragment fragment = new BookDetailFragment();
                     fragment.setArguments(arguments);
                     mParentActivity.getSupportFragmentManager().beginTransaction()
@@ -167,14 +165,14 @@ public class BookListActivity extends AppCompatActivity {
                     //Caso para móvil, que llama a la nueva actividad de Detail
                     Context context = view.getContext();
                     Intent intent = new Intent(context, BookDetailActivity.class);
-                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.getIdentificador());
+                    intent.putExtra(BookDetailFragment.ARG_ITEM_ID, item.getId());
                     context.startActivity(intent);
                 }
             }
         };
 
         SimpleItemRecyclerViewAdapter(BookListActivity parent,
-                                      List<BookItem> items,
+                                      List<Libro> items,
                                       boolean twoPane) {
             //Constructor del adaptador
             mValues = items;
@@ -207,8 +205,8 @@ public class BookListActivity extends AppCompatActivity {
 
         @Override
         public void onBindViewHolder(final ViewHolder holder, int position) {
-            holder.titulolista.setText(mValues.get(position).getTitulo());
-            holder.autorlista.setText(mValues.get(position).getAutor());
+            holder.titulolista.setText(mValues.get(position).getTitle());
+            holder.autorlista.setText(mValues.get(position).getAuthor());
 
             holder.itemView.setTag(mValues.get(position));
             holder.itemView.setOnClickListener(mOnClickListener);
