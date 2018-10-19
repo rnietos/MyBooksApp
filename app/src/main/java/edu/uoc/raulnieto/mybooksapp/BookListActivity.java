@@ -2,6 +2,8 @@ package edu.uoc.raulnieto.mybooksapp;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +16,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,7 +33,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import edu.uoc.raulnieto.mybooksapp.model.Libro;
 import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
-
+import io.realm.Realm;
+import io.realm.RealmResults;
 
 
 import java.util.ArrayList;
@@ -60,52 +64,33 @@ public class BookListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
-        //Nuevas característivas de Firebase en el proyecto
-        FirebaseApp.initializeApp(BookListActivity.this);
+        //Inicializamos la base de datos local
+        Realm.init(getApplicationContext());
 
-        FirebaseDatabase basededatos;
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.signInWithEmailAndPassword("rnieto@uoc.edu", "Pa$$w0rd")
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.i("TAG", "Completada autenticación");
-                        if (task.isSuccessful()) {
-                            user = mAuth.getCurrentUser();
-                            database = FirebaseDatabase.getInstance();
-                            Log.i("TAG", "Identificado");
-                            DatabaseReference myRef = database.getReference().child("books");
-                            // Read from the database
-                            myRef.addValueEventListener(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                    GenericTypeIndicator<ArrayList<Libro>> genericTypeIndicator =new GenericTypeIndicator<ArrayList<Libro>>(){};
-                                    LibroDatos.listalibros=dataSnapshot.getValue(genericTypeIndicator);
-                                    for (int i=0;i<LibroDatos.listalibros.size();i++) {
-                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getTitle());
-                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getAuthor());
-                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getPublicationdate());
-                                        Log.i("TAG", "Value is: " + LibroDatos.listalibros.get(i).getId());
-                                        LibroDatos.listalibros.get(i).setId(i);
-                                    }
-                                    View recyclerView = findViewById(R.id.item_list);
-                                    assert recyclerView != null;
-                                    setupRecyclerView((RecyclerView) recyclerView);
-                                }
+        //Realm.setDefaultConfiguration(LibroDatos.config);
+        LibroDatos.conexion = Realm.getDefaultInstance();
+       /* LibroDatos.conexion.beginTransaction();
+        LibroDatos.conexion.deleteAll();
+        LibroDatos.conexion.commitTransaction();*/
 
-                                @Override
-                                public void onCancelled(DatabaseError error) {
-                                    // Failed to read value
-                                    Log.i("TAG", "Error de lectura.", error.toException());
-                                }
-                            });
+        /* Control de Internet
+         * En caso de que no haya conexión a la RED no se realizará la carga de los datos
+          * desde el servidor FireBase
+          * */
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
 
-                        } else {
-                            Log.i("TAG", "Error conexion firebase");
-                        }
-                    }
-                });
+        NetworkInfo actNetInfo = connectivityManager.getActiveNetworkInfo();
 
+        if (actNetInfo != null && actNetInfo.isConnected() && actNetInfo.isAvailable()) {
+            Toast.makeText(this, "Red activada", Toast.LENGTH_SHORT).show();
+            cargaDatosFirebase();
+        }
+        else
+        {
+            Toast.makeText(this, "No hay acceso a Internet", Toast.LENGTH_SHORT).show();
+            cargarRealm();
+        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -120,17 +105,81 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
-
-
         if (findViewById(R.id.item_detail_container) != null) {
             // Cuando es una tablet (res/values-w900dp).
             // Lo indicamos en la variable que utilizamos para controlarlo.
             mTwoPane = true;
         }
 
-       /* View recyclerView = findViewById(R.id.item_list);
+    }
+
+    private void cargaDatosFirebase(){
+        //Nuevas característivas de Firebase en el proyecto
+        FirebaseApp.initializeApp(BookListActivity.this);
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.signInWithEmailAndPassword("rnieto@uoc.edu", "Pa$$w0rd")
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            user = mAuth.getCurrentUser();
+                            database = FirebaseDatabase.getInstance();
+                            DatabaseReference myRef = database.getReference().child("books");
+                            // Leemos la información de la Base de Datos
+                            myRef.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                    GenericTypeIndicator<ArrayList<Libro>> genericTypeIndicator =new GenericTypeIndicator<ArrayList<Libro>>(){};
+                                    //Obtenemos el listado y lo asignamos a lalista que utilizamos ne la aplicación
+                                    LibroDatos.listalibros=dataSnapshot.getValue(genericTypeIndicator);
+                                    for (int i=0;i<LibroDatos.listalibros.size();i++) {
+                                        //Actializamos el id puesto que no esta en Firebase
+                                        LibroDatos.listalibros.get(i).setId(i);
+                                        if (!LibroDatos.exists(LibroDatos.listalibros.get(i))){
+                                            //Si el libro no existe lo añadimos a la base de datos local
+                                            LibroDatos.conexion.beginTransaction();
+                                            LibroDatos.conexion.insert(LibroDatos.listalibros.get(i));
+                                            LibroDatos.conexion.commitTransaction();
+                                        }
+                                    }
+                                    cargaReciclerView();
+                                    /*View recyclerView = findViewById(R.id.item_list);
+                                    assert recyclerView != null;
+                                    setupRecyclerView((RecyclerView) recyclerView);*/
+                                }
+
+                                @Override
+                                public void onCancelled(DatabaseError error) {
+                                    Toast.makeText(BookListActivity.this, "No se leído desde el servidor", Toast.LENGTH_SHORT).show();
+                                    cargarRealm();
+                                    Log.i("TAG", "Error de lectura.", error.toException());
+                                }
+                            });
+
+                        } else {
+                            Toast.makeText(BookListActivity.this, "ERROR en la conexión a Firebase", Toast.LENGTH_SHORT).show();
+                            Log.i("TAG", "Error conexion firebase");
+                            cargarRealm();
+                        }
+                    }
+                });
+
+    }
+
+    //Función encargada de obtener los datos desde la base de datos local, y rellenar la lista
+    private void cargarRealm(){
+        LibroDatos.conexion.beginTransaction();
+        final RealmResults<Libro> ls = LibroDatos.conexion.where(Libro.class).findAll();
+        LibroDatos.conexion.commitTransaction();
+        LibroDatos.listalibros = (ArrayList)LibroDatos.getBooks();
+        cargaReciclerView();
+    }
+
+    //Función que genera el reciclerview
+    void cargaReciclerView(){
+        View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
-        setupRecyclerView((RecyclerView) recyclerView);*/
+        setupRecyclerView((RecyclerView) recyclerView);
     }
 
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
@@ -143,7 +192,7 @@ public class BookListActivity extends AppCompatActivity {
     public static class SimpleItemRecyclerViewAdapter
         extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
         private final BookListActivity mParentActivity;
-        private final List<Libro> mValues;
+        private List<Libro> mValues;
         private final boolean mTwoPane;
         private final View.OnClickListener mOnClickListener = new View.OnClickListener() {
             @Override
@@ -226,6 +275,10 @@ public class BookListActivity extends AppCompatActivity {
                 titulolista = (TextView) view.findViewById(R.id.id_titulo);
                 autorlista = (TextView) view.findViewById(R.id.autor);
             }
+        }
+        //Método que actuliza los datos de lista.
+        public void setItems(List<Libro> items) {
+            mValues = items;
         }
     }
 }

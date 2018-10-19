@@ -1,28 +1,25 @@
 package edu.uoc.raulnieto.mybooksapp.model;
 
-import android.util.Log;
+import io.realm.RealmObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-public class Libro {
+public class Libro extends RealmObject {
     private int id;
     private String title;
     private String author;
-    private Date publicationdate;
+    private String publicationdate;
     private String description;
     private String urlimage;
 
-    Libro(){}
+    public Libro(){}
     //Constructor de la clase con todos los parámetros.
+
     public Libro(int identificador, String titulo, String autor, String dataPublicacion, String descripcion, String URL) {
-        id = identificador;
-        title = titulo;
-        author = autor;
+        this.id = identificador;
+        this.title = titulo;
+        this.author = autor;
         setpublicationdate(dataPublicacion);
-        description = descripcion;
-        urlimage = URL;
+        this.description = descripcion;
+        this.urlimage = URL;
     }
 
     //Get y sets de las propiedades.
@@ -44,19 +41,11 @@ public class Libro {
     public void setAuthor(String autor) {
         author = autor;
     }
-    public Date getPublicationdate() {
+    public String getPublicationdate() {
         return publicationdate;
     }
     public void setpublicationdate(String dataPublicacion) {
-        SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd/MM/yyyy");
-        try {
-            publicationdate = formatoDelTexto.parse(dataPublicacion);
-            Log.d("TAG","--"+publicationdate);
-        } catch (ParseException e) {
-            publicationdate = null;
-            e.printStackTrace();
-            Log.d("TAG","ERROR: "+publicationdate);
-        }
+            publicationdate = dataPublicacion;
     }
     public String getDescription() {
         return description;
@@ -64,10 +53,10 @@ public class Libro {
     public void setDescription(String descripcion) {
         description = descripcion;
     }
-    public String getURL() {
+    public String getUrlimage() {
         return urlimage;
     }
-    public void setURL(String URL) {
+    public void setUrlimage(String URL) {
         urlimage = URL;
     }
 }

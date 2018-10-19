@@ -8,7 +8,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 
@@ -57,14 +59,23 @@ public class BookDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
+        Activity activity = this.getActivity();
+        CollapsingToolbarLayout appBarLayout = (CollapsingToolbarLayout) activity.findViewById(R.id.toolbar_layout);
+        if (appBarLayout != null) {
+            appBarLayout.setTitle(mItem.getTitle());
+        }
+
         View rootView = inflater.inflate(R.layout.book_item_detail, container, false);
 
         // Si hay un libro lo mostramos la etiqueta.
         if (mItem != null) {
             ((TextView) rootView.findViewById(R.id.libro_autor_detail)).setText(mItem.getAuthor());
-            SimpleDateFormat fechaString= new SimpleDateFormat("dd/MM/yyyy");
-            ((TextView) rootView.findViewById(R.id.libro_fecha_detail)).setText(fechaString.format(mItem.getPublicationdate()));
+            ((TextView) rootView.findViewById(R.id.libro_fecha_detail)).setText(mItem.getPublicationdate());
             ((TextView) rootView.findViewById(R.id.libro_descripcion_detail)).setText(mItem.getDescription());
+            ImageView cImagen = ((ImageView) rootView.findViewById(R.id.libro_imagen_detail));
+            Log.d("TAG",mItem.getUrlimage());
+            new LibroDatos.cargaImagendeURL(cImagen).execute(mItem.getUrlimage());
         }
 
         return rootView;
