@@ -17,23 +17,24 @@
     master/detail flow.
     
     -->
-
-    <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/item_list"
-        android:name="edu.uoc.raulnieto.mybooksapp.BookListFragment"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeContainer"
         android:layout_width="@dimen/item_width"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginRight="16dp">
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/item_list"
+        android:name="edu.uoc.raulnieto.mybooksapp.BookListFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
         tools:context="edu.uoc.raulnieto.mybooksapp.BookListActivity"
         tools:listitem="@layout/book_list_content" />
-
+    </android.support.v4.widget.SwipeRefreshLayout>
     <FrameLayout
         android:id="@+id/item_detail_container"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="3" />
-
 </LinearLayout>

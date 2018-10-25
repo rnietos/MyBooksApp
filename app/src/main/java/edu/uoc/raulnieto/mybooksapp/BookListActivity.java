@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -59,6 +60,8 @@ public class BookListActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private FirebaseUser user;
 
+    private SimpleItemRecyclerViewAdapter adaptador;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,24 +76,7 @@ public class BookListActivity extends AppCompatActivity {
         LibroDatos.conexion.deleteAll();
         LibroDatos.conexion.commitTransaction();*/
 
-        /* Control de Internet
-         * En caso de que no haya conexión a la RED no se realizará la carga de los datos
-          * desde el servidor FireBase
-          * */
-        ConnectivityManager connectivityManager = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        NetworkInfo actNetInfo = connectivityManager.getActiveNetworkInfo();
-
-        if (actNetInfo != null && actNetInfo.isConnected() && actNetInfo.isAvailable()) {
-            Toast.makeText(this, "Red activada", Toast.LENGTH_SHORT).show();
-            cargaDatosFirebase();
-        }
-        else
-        {
-            Toast.makeText(this, "No hay acceso a Internet", Toast.LENGTH_SHORT).show();
-            cargarRealm();
-        }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -111,9 +97,46 @@ public class BookListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
+        //Empezamos el proceso de carga de los elementos de la lista
+        iniciaCarga(false);
+
+        final SwipeRefreshLayout swipeContainer = (SwipeRefreshLayout) findViewById(R.id.swipeContainer);
+        // Controlamos el SwipeRefreshLayout, y definimos que hacer al actualizar
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //Toast.makeText(getApplicationContext(),"Actualizando",Toast.LENGTH_LONG).show();
+                iniciaCarga(true);
+                swipeContainer.setRefreshing(false);
+            }
+        });
+
     }
 
-    private void cargaDatosFirebase(){
+    private  void iniciaCarga(boolean actualiza){
+        /* Control de Internet
+         * En caso de que no haya conexión a la RED no se realizará la carga de los datos
+         * desde el servidor FireBase
+         * El valor de actualiza es el que indica si estamos creando el adaptador o se
+         * refresca la lista
+         * */
+        ConnectivityManager connectivityManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo actNetInfo = connectivityManager.getActiveNetworkInfo();
+
+        if (actNetInfo != null && actNetInfo.isConnected() && actNetInfo.isAvailable()) {
+            Toast.makeText(this, "Red activada", Toast.LENGTH_SHORT).show();
+            cargaDatosFirebase(actualiza);
+        }
+        else
+        {
+            Toast.makeText(this, "No hay acceso a Internet", Toast.LENGTH_SHORT).show();
+            cargarRealm(actualiza);
+        }
+    }
+
+    private void cargaDatosFirebase(final boolean actualiza){
         //Nuevas característivas de Firebase en el proyecto
         FirebaseApp.initializeApp(BookListActivity.this);
         mAuth = FirebaseAuth.getInstance();
@@ -142,16 +165,16 @@ public class BookListActivity extends AppCompatActivity {
                                             LibroDatos.conexion.commitTransaction();
                                         }
                                     }
-                                    cargaReciclerView();
-                                    /*View recyclerView = findViewById(R.id.item_list);
-                                    assert recyclerView != null;
-                                    setupRecyclerView((RecyclerView) recyclerView);*/
+                                    if (!actualiza)
+                                        cargaReciclerView();
+                                    else
+                                        adaptador.setItems(LibroDatos.listalibros);
                                 }
 
                                 @Override
                                 public void onCancelled(DatabaseError error) {
                                     Toast.makeText(BookListActivity.this, "No se leído desde el servidor", Toast.LENGTH_SHORT).show();
-                                    cargarRealm();
+                                    cargarRealm(actualiza);
                                     Log.i("TAG", "Error de lectura.", error.toException());
                                 }
                             });
@@ -159,7 +182,7 @@ public class BookListActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(BookListActivity.this, "ERROR en la conexión a Firebase", Toast.LENGTH_SHORT).show();
                             Log.i("TAG", "Error conexion firebase");
-                            cargarRealm();
+                            cargarRealm(actualiza);
                         }
                     }
                 });
@@ -167,12 +190,15 @@ public class BookListActivity extends AppCompatActivity {
     }
 
     //Función encargada de obtener los datos desde la base de datos local, y rellenar la lista
-    private void cargarRealm(){
+    private void cargarRealm(boolean actualiza){
         LibroDatos.conexion.beginTransaction();
         final RealmResults<Libro> ls = LibroDatos.conexion.where(Libro.class).findAll();
         LibroDatos.conexion.commitTransaction();
         LibroDatos.listalibros = (ArrayList)LibroDatos.getBooks();
-        cargaReciclerView();
+        if (!actualiza)
+            cargaReciclerView();
+        else
+            adaptador.setItems(LibroDatos.listalibros);
     }
 
     //Función que genera el reciclerview
@@ -185,7 +211,8 @@ public class BookListActivity extends AppCompatActivity {
     private void setupRecyclerView(@NonNull RecyclerView recyclerView) {
         //Preparamos los datos a mostrar indicando de donde se obtienen los datos
         // y el número de paneles
-        recyclerView.setAdapter(new SimpleItemRecyclerViewAdapter(this, LibroDatos.listalibros, mTwoPane));
+        adaptador = new SimpleItemRecyclerViewAdapter(this, LibroDatos.listalibros, mTwoPane);
+        recyclerView.setAdapter(adaptador);
     }
 
     // Este es el adaptador que rellena la lia a partir de nuestra lista de libros
@@ -278,7 +305,10 @@ public class BookListActivity extends AppCompatActivity {
         }
         //Método que actuliza los datos de lista.
         public void setItems(List<Libro> items) {
+            Log.d("TAG", "actualizando");
             mValues = items;
+            notifyDataSetChanged();
+            //Indicamos que se ha actualizado la lista y que se tiene que refrescar
         }
     }
 }
