@@ -35,7 +35,6 @@ import com.google.firebase.database.ValueEventListener;
 import edu.uoc.raulnieto.mybooksapp.model.Libro;
 import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
 import io.realm.Realm;
-import io.realm.RealmResults;
 
 
 import java.util.ArrayList;
@@ -60,6 +59,7 @@ public class BookListActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private FirebaseUser user;
 
+
     //Adapter que utilizamos para mostrar la lista de libros
     private SimpleItemRecyclerViewAdapter adaptador;
 
@@ -69,6 +69,7 @@ public class BookListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_item_list);
 
         //Inicializamos la base de datos local
+
         Realm.init(getApplicationContext());
         //Estableemos la conexion con la base de datos
         LibroDatos.conexion = Realm.getDefaultInstance();
@@ -121,12 +122,11 @@ public class BookListActivity extends AppCompatActivity {
         NetworkInfo actNetInfo = connectivityManager.getActiveNetworkInfo();
 
         if (actNetInfo != null && actNetInfo.isConnected() && actNetInfo.isAvailable()) {
-            Toast.makeText(this, "Red activada", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Red activada, cargando datos desde FireBase", Toast.LENGTH_LONG).show();
             cargaDatosFirebase(actualiza);
         }
-        else
-        {
-            Toast.makeText(this, "No hay acceso a Internet", Toast.LENGTH_SHORT).show();
+        else{
+            Toast.makeText(this, "No hay acceso a Internet, se carga la información de la base de datos local", Toast.LENGTH_LONG).show();
             cargarRealm(actualiza);
         }
     }
@@ -170,7 +170,7 @@ public class BookListActivity extends AppCompatActivity {
                                 @Override
                                 public void onCancelled(DatabaseError error) {
                                     //Si no se ha posidido leer del servidor firebase
-                                    Toast.makeText(BookListActivity.this, "No se leído desde el servidor", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(BookListActivity.this, "No se leído desde el servidor, se carga la información de la base de datos local", Toast.LENGTH_LONG).show();
                                     cargarRealm(actualiza);
                                     Log.i("TAG", "Error de lectura.", error.toException());
                                 }
@@ -178,7 +178,7 @@ public class BookListActivity extends AppCompatActivity {
 
                         } else {
                             //Error en ela conexión a internet
-                            Toast.makeText(BookListActivity.this, "ERROR en la conexión a Firebase", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(BookListActivity.this, "ERROR en la conexión a Firebase, se carga la información de la base de datos local", Toast.LENGTH_SHORT).show();
                             Log.i("TAG", "Error conexion firebase");
                             cargarRealm(actualiza);
                         }

@@ -67,4 +67,7 @@ public class LibroDatos {
             bmImage.setImageBitmap(result);
         }
     }
+
+
+
 }
