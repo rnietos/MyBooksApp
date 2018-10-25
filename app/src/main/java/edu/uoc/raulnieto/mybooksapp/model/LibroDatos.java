@@ -10,15 +10,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 public class LibroDatos {
     public static ArrayList<Libro> listalibros;
     //Definimos la variable de conexión
     public static Realm conexion;
-    //public static RealmConfiguration config = new RealmConfiguration.Builder().name("milibros.realm").build();
-
+    /*public static RealmConfiguration config = new RealmConfiguration.Builder().name("milibros.realm").build();
+        Por si necesitamos cambiar la configuración de la base de datos
+    */
     //Función para devolver la lista
     public static List<Libro> getBooks(){
         List<Libro> lTemporal = new ArrayList<Libro>();

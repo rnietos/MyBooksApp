@@ -60,6 +60,7 @@ public class BookListActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private FirebaseUser user;
 
+    //Adapter que utilizamos para mostrar la lista de libros
     private SimpleItemRecyclerViewAdapter adaptador;
 
     @Override
@@ -69,14 +70,8 @@ public class BookListActivity extends AppCompatActivity {
 
         //Inicializamos la base de datos local
         Realm.init(getApplicationContext());
-
-        //Realm.setDefaultConfiguration(LibroDatos.config);
+        //Estableemos la conexion con la base de datos
         LibroDatos.conexion = Realm.getDefaultInstance();
-       /* LibroDatos.conexion.beginTransaction();
-        LibroDatos.conexion.deleteAll();
-        LibroDatos.conexion.commitTransaction();*/
-
-
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -156,7 +151,7 @@ public class BookListActivity extends AppCompatActivity {
                                     //Obtenemos el listado y lo asignamos a lalista que utilizamos ne la aplicación
                                     LibroDatos.listalibros=dataSnapshot.getValue(genericTypeIndicator);
                                     for (int i=0;i<LibroDatos.listalibros.size();i++) {
-                                        //Actializamos el id puesto que no esta en Firebase
+                                        //Actualizamos el id puesto que no esta en Firebase
                                         LibroDatos.listalibros.get(i).setId(i);
                                         if (!LibroDatos.exists(LibroDatos.listalibros.get(i))){
                                             //Si el libro no existe lo añadimos a la base de datos local
@@ -165,6 +160,7 @@ public class BookListActivity extends AppCompatActivity {
                                             LibroDatos.conexion.commitTransaction();
                                         }
                                     }
+                                    //El parámetro actualiza indica si es una nueva carga, o actualizar la lista
                                     if (!actualiza)
                                         cargaReciclerView();
                                     else
@@ -173,6 +169,7 @@ public class BookListActivity extends AppCompatActivity {
 
                                 @Override
                                 public void onCancelled(DatabaseError error) {
+                                    //Si no se ha posidido leer del servidor firebase
                                     Toast.makeText(BookListActivity.this, "No se leído desde el servidor", Toast.LENGTH_SHORT).show();
                                     cargarRealm(actualiza);
                                     Log.i("TAG", "Error de lectura.", error.toException());
@@ -180,6 +177,7 @@ public class BookListActivity extends AppCompatActivity {
                             });
 
                         } else {
+                            //Error en ela conexión a internet
                             Toast.makeText(BookListActivity.this, "ERROR en la conexión a Firebase", Toast.LENGTH_SHORT).show();
                             Log.i("TAG", "Error conexion firebase");
                             cargarRealm(actualiza);
@@ -191,17 +189,19 @@ public class BookListActivity extends AppCompatActivity {
 
     //Función encargada de obtener los datos desde la base de datos local, y rellenar la lista
     private void cargarRealm(boolean actualiza){
-        LibroDatos.conexion.beginTransaction();
+        /*LibroDatos.conexion.beginTransaction();
+        //Recuperamos todos los libros de a base de datos
         final RealmResults<Libro> ls = LibroDatos.conexion.where(Libro.class).findAll();
-        LibroDatos.conexion.commitTransaction();
+        LibroDatos.conexion.commitTransaction();*/
         LibroDatos.listalibros = (ArrayList)LibroDatos.getBooks();
+        //El parámetro actualiza indica si es una nueva carga, o actualizar la lista
         if (!actualiza)
             cargaReciclerView();
         else
             adaptador.setItems(LibroDatos.listalibros);
     }
 
-    //Función que genera el reciclerview
+    //Función que genera el recyclerview
     void cargaReciclerView(){
         View recyclerView = findViewById(R.id.item_list);
         assert recyclerView != null;
@@ -215,7 +215,7 @@ public class BookListActivity extends AppCompatActivity {
         recyclerView.setAdapter(adaptador);
     }
 
-    // Este es el adaptador que rellena la lia a partir de nuestra lista de libros
+    // Este es el adaptador que rellena la lista a partir de nuestra lista de libros
     public static class SimpleItemRecyclerViewAdapter
         extends RecyclerView.Adapter<SimpleItemRecyclerViewAdapter.ViewHolder> {
         private final BookListActivity mParentActivity;
