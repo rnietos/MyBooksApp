@@ -143,6 +143,7 @@ public class BookListActivity extends AppCompatActivity {
         }
         else{
             Toast.makeText(this, "No hay acceso a Internet, se carga la información de la base de datos local", Toast.LENGTH_LONG).show();
+
             cargarRealm(actualiza);
         }
     }
@@ -210,6 +211,7 @@ public class BookListActivity extends AppCompatActivity {
         final RealmResults<Libro> ls = LibroDatos.conexion.where(Libro.class).findAll();
         LibroDatos.conexion.commitTransaction();*/
         LibroDatos.listalibros = (ArrayList)LibroDatos.getBooks();
+        Log.d("TAG","datos" + LibroDatos.listalibros.size());
         //El parámetro actualiza indica si es una nueva carga, o actualizar la lista
         if (!actualiza)
             cargaReciclerView();

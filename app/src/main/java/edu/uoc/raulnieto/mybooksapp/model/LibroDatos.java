@@ -21,7 +21,7 @@ public class LibroDatos {
     */
     //Función para devolver la lista
     public static List<Libro> getBooks(){
-        List<Libro> lTemporal = new ArrayList<Libro>();
+        /*List<Libro> lTemporal = new ArrayList<Libro>();
         conexion.beginTransaction();
         final RealmResults<Libro> ls = LibroDatos.conexion.where(Libro.class).findAll();
         //Recuperamos todos los elementos, y con ellos rellenamos el listado
@@ -30,8 +30,8 @@ public class LibroDatos {
             Libro lib = new Libro(i, ls.get(i).getTitle(),ls.get(i).getAuthor(),ls.get(i).getPublicationdate(),ls.get(i).getDescription(),ls.get(i).getUrlimage());
             Log.d("TAG","Libros: " + lib.getAuthor());
             lTemporal.add(lib);
-        }
-        return lTemporal;
+        }*/
+        return   conexion.copyFromRealm(LibroDatos.conexion.where(Libro.class).findAll());
     }
     //Función para devolver la lista
    /* public static List<Libro> getBooks(){
