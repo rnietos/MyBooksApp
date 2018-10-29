@@ -33,6 +33,10 @@ public class LibroDatos {
         }
         return lTemporal;
     }
+    //Función para devolver la lista
+   /* public static List<Libro> getBooks(){
+        return LibroDatos.conexion.where(Libro.class).findAll();
+    }*/
 
     //Comprueba si existe un libro
     public static  boolean exists(Libro libro){

@@ -1,5 +1,6 @@
 package edu.uoc.raulnieto.mybooksapp;
 
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
@@ -74,6 +75,12 @@ public class BookListActivity extends AppCompatActivity {
         //Estableemos la conexion con la base de datos
         LibroDatos.conexion = Realm.getDefaultInstance();
 
+       /* Stetho.initialize(
+                Stetho.newInitializerBuilder(this)
+                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
+                        .build());
+*/
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
@@ -93,6 +100,8 @@ public class BookListActivity extends AppCompatActivity {
             mTwoPane = true;
         }
 
+
+
         //Empezamos el proceso de carga de los elementos de la lista
         iniciaCarga(false);
 
@@ -107,6 +116,13 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        iniciaCarga(false);
     }
 
     private  void iniciaCarga(boolean actualiza){
