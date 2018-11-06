@@ -32,6 +32,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import edu.uoc.raulnieto.mybooksapp.model.Libro;
 import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
@@ -69,8 +70,9 @@ public class BookListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
+        //Inicializamos mensajería FireBase
+        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         //Inicializamos la base de datos local
-
         Realm.init(getApplicationContext());
         //Estableemos la conexion con la base de datos
         LibroDatos.conexion = Realm.getDefaultInstance();
