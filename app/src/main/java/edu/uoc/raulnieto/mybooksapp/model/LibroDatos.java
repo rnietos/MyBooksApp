@@ -13,6 +13,14 @@ import io.realm.Realm;
 import io.realm.RealmResults;
 
 public class LibroDatos {
+
+    //Identificador del canal de notificaciones
+    public static String CHANNEL_ID = "canalFirebase";
+
+    //Bornoes de las notificaciones.
+    public static String ACTION_BORRAR = "BORRAR";
+    public static String ACTION_VER = "VER DETALLE";
+
     public static ArrayList<Libro> listalibros;
     //Definimos la variable de conexión
     public static Realm conexion;
@@ -46,6 +54,11 @@ public class LibroDatos {
             return true;
         else
             return false;
+    }
+
+    //Eliminamos el libro
+    public static  void eliminar(Libro libro){
+        libro.deleteFromRealm();
     }
 
     //Clase asincrona para cargar la imagen, recibe el imageview en que la cargará a partir de la URL

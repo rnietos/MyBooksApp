@@ -1,10 +1,13 @@
 package edu.uoc.raulnieto.mybooksapp;
 
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -62,6 +65,8 @@ public class BookListActivity extends AppCompatActivity {
     private FirebaseUser user;
 
 
+
+
     //Adapter que utilizamos para mostrar la lista de libros
     private SimpleItemRecyclerViewAdapter adaptador;
 
@@ -70,8 +75,23 @@ public class BookListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
+        //Inicializamos canal de notificaciones.
+        if (getIntent() != null && getIntent().getAction() != null) {
+            if (getIntent().getAction().equalsIgnoreCase(LibroDatos.ACTION_BORRAR)) {
+                // Acción eliminar de la notificación recibida
+                Toast.makeText(this, "Acción eliminar", Toast.LENGTH_SHORT).show();
+                Log.i("TAG", "Borrar");
+            } else if (getIntent().getAction().equalsIgnoreCase(LibroDatos.ACTION_VER)) {
+                String dato = getIntent().getStringExtra("titulo");
+                // Acción reenviar de la notificación recibida
+                Log.i("TAG", "Ver " + dato);
+                Toast.makeText(this, "Acción ver", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
         //Inicializamos mensajería FireBase
-        FirebaseMessaging.getInstance().setAutoInitEnabled(true);
+       // FirebaseMessaging.getInstance().setAutoInitEnabled(true);
         //Inicializamos la base de datos local
         Realm.init(getApplicationContext());
         //Estableemos la conexion con la base de datos
@@ -331,4 +351,24 @@ public class BookListActivity extends AppCompatActivity {
             //Indicamos que se ha actualizado la lista y que se tiene que refrescar
         }
     }
+
+
+
+    //Función que crea el canal de notificación
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = LibroDatos.CHANNEL_ID;
+            String description = "Descripcion canal";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(LibroDatos.CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 }
