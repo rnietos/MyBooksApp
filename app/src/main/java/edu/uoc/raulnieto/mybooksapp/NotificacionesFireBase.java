@@ -29,26 +29,24 @@ public class NotificacionesFireBase extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage remoteMessage) {
         // Mostrar una notificación al recibir un mensaje de Firebase, utilzamos la función
         // sendNotification para generar la notificación al recibir la notificación remota
-        Log.d("TAG","Notificacion detectada" +remoteMessage.getNotification().getTitle());
-
-        sendNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody());
+        sendNotification(remoteMessage.getNotification().getTitle(),remoteMessage.getNotification().getBody(),remoteMessage.getData().get("book_position"));
 
     }
 
-    private void sendNotification(String titulo, String cuerpo) {
+    private void sendNotification(String titulo, String cuerpo, String bookpos) {
 
+        int id = Integer.parseInt(bookpos);
         //Creamos el intent al que irá la acción Borrar de la notificación
         Intent intentBorrar = new Intent(this, BookListActivity.class);
+        intentBorrar.putExtra("book_position",id);
         intentBorrar.setAction(LibroDatos.ACTION_BORRAR).
                 addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        Log.i("TAG", "pasa: " + titulo);
+
         //Creamos el intent al que irá la acción Ver Detalle de la notificación
         Intent intentVer = new Intent(this, BookListActivity.class);
-       // intentVer.putExtra("titulo","titulopasado");
+        intentVer.putExtra("book_position",id);
         intentVer.setAction(LibroDatos.ACTION_VER)
         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        /*borrar.setAction(ACTION_SNOOZE);
-        borrar.putExtra(EXTRA_NOTIFICATION_ID, 0);*/
 
         //Preparamos las acciones que ejecutarán los botones de la notificación
         PendingIntent borrarPendingIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intentBorrar, 0);
@@ -62,6 +60,7 @@ public class NotificacionesFireBase extends FirebaseMessagingService {
                 .setSmallIcon(R.drawable.ic_launcher_background)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setStyle(estilo)
+                .setAutoCancel(true)
                 .addAction(R.drawable.libro, LibroDatos.ACTION_BORRAR,
                         borrarPendingIntent)
                 .addAction(R.drawable.libro, LibroDatos.ACTION_VER,

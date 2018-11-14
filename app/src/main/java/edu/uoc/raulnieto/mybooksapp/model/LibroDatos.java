@@ -57,8 +57,14 @@ public class LibroDatos {
     }
 
     //Eliminamos el libro
-    public static  void eliminar(Libro libro){
-        libro.deleteFromRealm();
+    public static  void eliminar(int  bookpos){
+        RealmResults<Libro> l;
+        if (bookpos < LibroDatos.listalibros.size()) {
+            conexion.beginTransaction();
+            l = conexion.where(Libro.class).equalTo("title", LibroDatos.listalibros.get(bookpos).getTitle()).findAll();
+            l.deleteAllFromRealm();
+            conexion.commitTransaction();
+        }
     }
 
     //Clase asincrona para cargar la imagen, recibe el imageview en que la cargará a partir de la URL

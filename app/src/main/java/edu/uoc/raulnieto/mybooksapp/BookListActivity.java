@@ -77,16 +77,18 @@ public class BookListActivity extends AppCompatActivity {
 
         //Inicializamos canal de notificaciones.
         if (getIntent() != null && getIntent().getAction() != null) {
+            int bookpos = getIntent().getIntExtra("book_position",0);
+            Log.i("TAG", "Dato recibido notificación: " + bookpos);
             if (getIntent().getAction().equalsIgnoreCase(LibroDatos.ACTION_BORRAR)) {
                 // Acción eliminar de la notificación recibida
+                Log.d("TAG","Eliminar" + bookpos);
+                LibroDatos.eliminar(bookpos);
                 Toast.makeText(this, "Acción eliminar", Toast.LENGTH_SHORT).show();
-                Log.i("TAG", "Borrar");
             } else if (getIntent().getAction().equalsIgnoreCase(LibroDatos.ACTION_VER)) {
-                String dato = getIntent().getStringExtra("titulo");
                 // Acción reenviar de la notificación recibida
-                Log.i("TAG", "Ver " + dato);
-                Toast.makeText(this, "Acción ver", Toast.LENGTH_SHORT).show();
+                actualizaNotificacion(bookpos);
             }
+
         }
 
 
@@ -138,6 +140,25 @@ public class BookListActivity extends AppCompatActivity {
             }
         });
 
+    }
+    private void actualizaNotificacion(int bookpos){
+        if (bookpos < LibroDatos.listalibros.size()) {
+            if (mTwoPane) {
+                //Caso para tablet, que actualiza el panel de Detail
+                Bundle arguments = new Bundle();
+                arguments.putInt(BookDetailFragment.ARG_ITEM_ID, bookpos);
+                BookDetailFragment fragment = new BookDetailFragment();
+                fragment.setArguments(arguments);
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.item_detail_container, fragment)
+                        .commit();
+            } else {
+                //Caso para móvil, que llama a la nueva actividad de Detail
+                Intent intent = new Intent(this, BookDetailActivity.class);
+                intent.putExtra(BookDetailFragment.ARG_ITEM_ID, bookpos);
+                startActivity(intent);
+            }
+        }
     }
 
 
