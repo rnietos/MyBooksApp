@@ -15,7 +15,10 @@ import io.realm.RealmResults;
 public class LibroDatos {
 
     //Identificador del canal de notificaciones
-    public static String CHANNEL_ID = "canalFirebase";
+    public static String CHANNEL_ID = "canalNotifFirebase";
+    //Id de la notificación para luego eliminarla
+    public static int NOTIF_ID = 11;
+    public static String TAGNOTIF_ID = "MiNotificacion";
 
     //Bornoes de las notificaciones.
     public static String ACTION_BORRAR = "BORRAR";

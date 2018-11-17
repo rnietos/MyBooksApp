@@ -35,6 +35,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessaging;
 
 import edu.uoc.raulnieto.mybooksapp.model.Libro;
@@ -75,6 +76,10 @@ public class BookListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
 
+
+
+
+
         //Inicializamos canal de notificaciones.
         if (getIntent() != null && getIntent().getAction() != null) {
             int bookpos = getIntent().getIntExtra("book_position",0);
@@ -86,9 +91,13 @@ public class BookListActivity extends AppCompatActivity {
                 Toast.makeText(this, "Acción eliminar", Toast.LENGTH_SHORT).show();
             } else if (getIntent().getAction().equalsIgnoreCase(LibroDatos.ACTION_VER)) {
                 // Acción reenviar de la notificación recibida
+                Log.d("TAG","Ver" + bookpos);
                 actualizaNotificacion(bookpos);
             }
-
+            NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+            //notificationManager.cancel(LibroDatos.NOTIF_ID);
+            notificationManager.cancel(LibroDatos.TAGNOTIF_ID,LibroDatos.NOTIF_ID);
+            Log.d("TAG","Borrar Notif");
         }
 
 
@@ -372,24 +381,4 @@ public class BookListActivity extends AppCompatActivity {
             //Indicamos que se ha actualizado la lista y que se tiene que refrescar
         }
     }
-
-
-
-    //Función que crea el canal de notificación
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = LibroDatos.CHANNEL_ID;
-            String description = "Descripcion canal";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(LibroDatos.CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            // Register the channel with the system; you can't change the importance
-            // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
 }

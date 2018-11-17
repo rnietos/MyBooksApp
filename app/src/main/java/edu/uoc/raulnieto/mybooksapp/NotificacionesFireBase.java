@@ -4,17 +4,18 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.media.AudioAttributes;
 import android.os.Build;
+import android.provider.Settings;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
-
-import static android.app.Notification.EXTRA_NOTIFICATION_ID;
 
 public class NotificacionesFireBase extends FirebaseMessagingService {
 
@@ -34,8 +35,10 @@ public class NotificacionesFireBase extends FirebaseMessagingService {
     }
 
     private void sendNotification(String titulo, String cuerpo, String bookpos) {
-
-        int id = Integer.parseInt(bookpos);
+        Log.i("TAG", "NOTIFICACION");
+        int id = 0;
+        if (bookpos != null)
+            id = Integer.parseInt(bookpos);
         //Creamos el intent al que irá la acción Borrar de la notificación
         Intent intentBorrar = new Intent(this, BookListActivity.class);
         intentBorrar.putExtra("book_position",id);
@@ -52,19 +55,9 @@ public class NotificacionesFireBase extends FirebaseMessagingService {
         PendingIntent borrarPendingIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intentBorrar, 0);
         PendingIntent verPendingIntent = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intentVer, 0);
 
-        //Preparamos la notificación
-        NotificationCompat.BigTextStyle estilo = new NotificationCompat.BigTextStyle().bigText(cuerpo);
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, LibroDatos.CHANNEL_ID)
-                .setContentTitle(titulo)
-                .setContentText(cuerpo)
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setStyle(estilo)
-                .setAutoCancel(true)
-                .addAction(R.drawable.libro, LibroDatos.ACTION_BORRAR,
-                        borrarPendingIntent)
-                .addAction(R.drawable.libro, LibroDatos.ACTION_VER,
-                verPendingIntent);
+        long[] patronVibracion = new long[]{100, 200, 300, 400, 500, 400, 300, 200, 400};
+
+        NotificationManager notificationManager = (NotificationManager) getApplicationContext().getSystemService(getApplicationContext().NOTIFICATION_SERVICE);
         //Comprobamos si es necesario crear un canal según la versión de android
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Log.i("TAG", "crea canal");
@@ -72,14 +65,41 @@ public class NotificacionesFireBase extends FirebaseMessagingService {
             String description = "Descripcion canal";
             int importance = NotificationManager.IMPORTANCE_DEFAULT;
             NotificationChannel channel = new NotificationChannel(LibroDatos.CHANNEL_ID, name, importance);
+            /*AudioAttributes att = new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build();
+            channel.setSound(Settings.System.DEFAULT_NOTIFICATION_URI, att );*/
             channel.setDescription(description);
+            channel.enableLights(true);
+            channel.setLightColor(Color.BLUE);
+            channel.enableVibration(true);
+            channel.setVibrationPattern(patronVibracion);
             //Registramos el canal
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            assert notificationManager != null;
             notificationManager.createNotificationChannel(channel);
         }
+
+        //Preparamos la notificación
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, LibroDatos.CHANNEL_ID)
+                .setContentTitle(titulo)
+                .setContentText(cuerpo)
+                .setSmallIcon(R.drawable.libro)
+                .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                .setVibrate(patronVibracion)
+                .setLargeIcon(BitmapFactory.decodeResource(getApplicationContext().getResources(),R.drawable.libro))
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setLights(Color.BLUE,200,200)
+                .setAutoCancel(true)
+                .addAction(R.drawable.libro, LibroDatos.ACTION_BORRAR,
+                        borrarPendingIntent)
+                .addAction(R.drawable.libro, LibroDatos.ACTION_VER,
+                verPendingIntent);
         //Generamos la notificación.
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(this);
-        notificationManager.notify(1, mBuilder.build());
+        assert notificationManager != null;
+       // mBuilder.setChannelId(LibroDatos.CHANNEL_ID);
+        notificationManager.notify(LibroDatos.TAGNOTIF_ID,LibroDatos.NOTIF_ID, mBuilder.build());
+        //notificationManager.notify("noti");
 
         Log.d("TAG","Notificacion enviada");
     }
