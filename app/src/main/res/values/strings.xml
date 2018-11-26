@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">MyBooksApp</string>
     <string name="title_item_detail">Item Detail</string>
+    <string name="Opcion1">Compartir datos</string>
+    <string name="Opcion2">Copiar al portapales</string>
+    <string name="Opcion3">Compartir Whatsapp</string>
 </resources>

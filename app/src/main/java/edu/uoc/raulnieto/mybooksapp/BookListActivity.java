@@ -1,21 +1,19 @@
 package edu.uoc.raulnieto.mybooksapp;
 
 
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import androidx.annotation.NonNull;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.appcompat.widget.Toolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,8 +33,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import edu.uoc.raulnieto.mybooksapp.model.Libro;
 import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
@@ -75,10 +81,6 @@ public class BookListActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_item_list);
-
-
-
-
 
         //Inicializamos canal de notificaciones.
         if (getIntent() != null && getIntent().getAction() != null) {
@@ -126,6 +128,49 @@ public class BookListActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        //Preparamos menu lateral
+        //Opciones de menu
+        PrimaryDrawerItem opcion1 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.Opcion1);
+        PrimaryDrawerItem opcion2 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.Opcion2);
+        PrimaryDrawerItem opcion3 = new PrimaryDrawerItem().withIdentifier(1).withName(R.string.Opcion3);
+        //SecondaryDrawerItem item2 = new SecondaryDrawerItem().withIdentifier(2).withName(R.string.Opcion2);
+        //Cabecera
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.ic_launcher_background)
+                .addProfiles(
+                        new ProfileDrawerItem().withName("Raul Nieto").withEmail("rnieto@uoc.edu").withIcon(getResources().getDrawable(R.drawable.libro))
+                )
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
+                        return false;
+                    }
+                })
+                .build();
+
+//create the drawer and remember the `Drawer` result object
+        Drawer result = new DrawerBuilder()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .withAccountHeader(headerResult)
+                .addDrawerItems(
+                        opcion1,
+                        opcion2,
+                        opcion3
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        // do something with the clicked item :D
+                        return false;
+                    }
+                })
+                .build();
+
+
+
 
         if (findViewById(R.id.item_detail_container) != null) {
             // Cuando es una tablet (res/values-w900dp).
