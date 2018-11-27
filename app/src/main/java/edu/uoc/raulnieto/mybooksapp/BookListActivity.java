@@ -2,18 +2,24 @@ package edu.uoc.raulnieto.mybooksapp;
 
 
 import android.app.NotificationManager;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
+import androidx.core.content.FileProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.appcompat.widget.Toolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,11 +52,18 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import edu.uoc.raulnieto.mybooksapp.model.Libro;
 import edu.uoc.raulnieto.mybooksapp.model.LibroDatos;
+import io.reactivex.annotations.NonNull;
 import io.realm.Realm;
 
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+
 
 /**
  * Actividad que muestra la lista de libros
@@ -70,9 +83,6 @@ public class BookListActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
     private FirebaseUser user;
-
-
-
 
     //Adapter que utilizamos para mostrar la lista de libros
     private SimpleItemRecyclerViewAdapter adaptador;
@@ -110,12 +120,6 @@ public class BookListActivity extends AppCompatActivity {
         //Estableemos la conexion con la base de datos
         LibroDatos.conexion = Realm.getDefaultInstance();
 
-       /* Stetho.initialize(
-                Stetho.newInitializerBuilder(this)
-                        .enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-                        .enableWebKitInspector(RealmInspectorModulesProvider.builder(this).build())
-                        .build());
-*/
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle(getTitle());
@@ -164,6 +168,45 @@ public class BookListActivity extends AppCompatActivity {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         // do something with the clicked item :D
+                        Intent sendIntent;
+                        File f;
+                        Uri uri;
+                        switch (position){
+                            case 1:
+                                //Cuando seleccionan la opción de compartir datos
+                                    f = nuevoFicheroImagen();
+                                    uri = FileProvider.getUriForFile(BookListActivity.this, "edu.uoc.raulnieto.fileprovider", f);
+                                    sendIntent = new Intent();
+                                    sendIntent.setAction(Intent.ACTION_SEND);
+                                    sendIntent.putExtra(Intent.EXTRA_TEXT, "Aplicació Android sobre llibres");
+                                    sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                                    sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    sendIntent.setType("image/*");
+                                    startActivity(Intent.createChooser(sendIntent, "Compartir con"));
+                                break;
+                            case 2:
+                                //Copiar el texto al portapapeles
+                                ClipboardManager clipboard = (ClipboardManager)
+                                        getSystemService(Context.CLIPBOARD_SERVICE);
+                                ClipData clip = ClipData.newPlainText("texto", "Aplicació Android sobre llibres");
+                                clipboard.setPrimaryClip(clip);
+                                Snackbar.make(view, "Texto copiado al portapapeles", Snackbar.LENGTH_LONG)
+                                        .setAction("Action", null).show();
+                                break;
+                            default: break;
+                            case 3:
+                                f = nuevoFicheroImagen();
+                                uri = FileProvider.getUriForFile(BookListActivity.this, "edu.uoc.raulnieto.fileprovider", f);
+                                sendIntent = new Intent();
+                                sendIntent.setAction(Intent.ACTION_SEND);
+                                sendIntent.setPackage("com.whatsapp");
+                                sendIntent.putExtra(Intent.EXTRA_TEXT, "Aplicació Android sobre llibres");
+                                sendIntent.putExtra(Intent.EXTRA_STREAM, uri);
+                                sendIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                sendIntent.setType("image/*");
+                                startActivity(sendIntent);
+                                break;
+                        }
                         return false;
                     }
                 })
@@ -195,7 +238,34 @@ public class BookListActivity extends AppCompatActivity {
         });
 
     }
-    private void actualizaNotificacion(int bookpos){
+
+    private File nuevoFicheroImagen(){
+        try {
+        //Generamos el adjunto que enviaremos
+        File imagePath = new File(getApplicationContext().getFilesDir(),"");
+        File f = new File(imagePath, "adjunto.png");
+        //si el archuvos que adjuntamos no existe lo preparamos.
+        if (!f.exists()) {
+            Log.d("TAG","CREADO");
+            f.createNewFile();
+            Bitmap bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+            ByteArrayOutputStream bos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 0 /*ignored for PNG*/, bos);
+            byte[] bitmapdata = bos.toByteArray();
+            FileOutputStream fos = new FileOutputStream(f);
+            fos.write(bitmapdata);
+            fos.flush();
+            fos.close();
+        }
+        return f;
+        } catch (IOException e){
+            Log.d("TAG", e.getMessage());
+        }
+        //Preparamos la Uri que vamos a compartir, a partir del adjunto que hemos generado
+        return null;
+    }
+
+     private void actualizaNotificacion(int bookpos){
         if (bookpos < LibroDatos.listalibros.size()) {
             if (mTwoPane) {
                 //Caso para tablet, que actualiza el panel de Detail
