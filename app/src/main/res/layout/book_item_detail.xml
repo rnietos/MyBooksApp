@@ -62,4 +62,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/libro_imagen_detail"
         app:layout_constraintTop_toBottomOf="@+id/libro_fecha_detail" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>

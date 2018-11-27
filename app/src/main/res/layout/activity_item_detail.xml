@@ -49,6 +49,13 @@
         android:layout_margin="@dimen/fab_margin"
         app:layout_anchor="@+id/item_detail_container"
         app:layout_anchorGravity="top|end"
-        app:srcCompat="@android:drawable/stat_notify_chat" />
+        app:behavior_autoHide="true"
+        app:srcCompat="@android:drawable/btn_star" />
+    <WebView  xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/visor_web"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:visibility="invisible"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

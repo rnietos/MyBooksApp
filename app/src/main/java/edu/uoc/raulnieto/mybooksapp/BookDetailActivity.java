@@ -1,7 +1,9 @@
 package edu.uoc.raulnieto.mybooksapp;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import androidx.appcompat.widget.Toolbar;
@@ -10,12 +12,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.ActionBar;
 import androidx.core.app.NavUtils;
 import android.view.MenuItem;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+import android.widget.Toast;
 
 /**
  * Actividad para los móviles en los que se muestra la lista de los elementos
  */
 public class BookDetailActivity extends AppCompatActivity {
 
+    FloatingActionButton fab = null;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -23,12 +29,16 @@ public class BookDetailActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own detail action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                //Mostramos el webview cargando la página del sistema
+                WebView webView = findViewById(R.id.visor_web);
+                webView.setVisibility(View.VISIBLE);
+                webView.setWebViewClient(new ResultadoWebClient());
+                webView.loadUrl("file:///android_asset/form.html");
+               fab.hide();
             }
         });
 
@@ -65,4 +75,49 @@ public class BookDetailActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    class ResultadoWebClient extends WebViewClient {
+        String nombre;
+        String numero;
+        String fecha;
+        @Override
+        public boolean shouldOverrideUrlLoading(WebView view, String url) {
+            //Gestionamos los parámetros
+            nombre = Uri.parse(url).getQueryParameter("name");
+            numero = Uri.parse(url).getQueryParameter("num");
+            fecha = Uri.parse(url).getQueryParameter("date");
+
+            //Si no hay error mostramos mensaje, en caso contrario mostramos el mensaje
+            String mensajeError = compruebaError();
+            if (mensajeError.length()==0) {
+                //Al no haber error mostramos el mensaje y visualizamos la vista principal y el botón
+                Snackbar.make(view, "Gracias por su compra!", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+                view.setVisibility(View.GONE);
+                fab.show();
+                return true;
+            }
+            else{
+                //En caso de error mostramos el mensaje y seguimos preguntando.
+                 Toast.makeText(BookDetailActivity.this, mensajeError, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+        //Función que comprueba si los datos son correctos.
+        private String compruebaError(){
+            String res = "";
+            if (nombre == "") {
+                res += "El nombre no puede estar en blanco\n\n";
+            }
+            if (numero == "") {
+                res += "El número de cuenta no puede estar en blanco\n\n";
+            }
+            if (fecha == "") {
+                res += "La fecha no puede estar vacia";
+            }
+            return res;
+        }
+    }
+
+
 }
